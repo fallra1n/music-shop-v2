@@ -1,4 +1,4 @@
-package music_shop
+package app
 
 import (
 	"github.com/gin-gonic/gin"

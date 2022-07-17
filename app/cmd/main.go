@@ -1,10 +1,10 @@
 package main
 
 import (
-	msh "github.com/asssswv/music-shop-v2"
-	"github.com/asssswv/music-shop-v2/pkg/handler"
-	"github.com/asssswv/music-shop-v2/pkg/repository"
-	"github.com/asssswv/music-shop-v2/pkg/service"
+	msh "github.com/asssswv/music-shop-v2/app"
+	"github.com/asssswv/music-shop-v2/app/pkg/handler"
+	repository2 "github.com/asssswv/music-shop-v2/app/pkg/repository"
+	"github.com/asssswv/music-shop-v2/app/pkg/service"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
@@ -21,7 +21,7 @@ func main() {
 		log.Fatalf("fail to get password: %s", err.Error())
 	}
 
-	db, err := repository.NewPostgresDB(repository.Config{
+	db, err := repository2.NewPostgresDB(repository2.Config{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
@@ -34,7 +34,7 @@ func main() {
 		log.Fatalf("fail to init db: %s", err.Error())
 	}
 
-	repos := repository.NewRepository(db)
+	repos := repository2.NewRepository(db)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 	msh.Srv.InitRouter(handlers.InitRoutes())

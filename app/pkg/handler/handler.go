@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/asssswv/music-shop-v2/pkg/service"
+	"github.com/asssswv/music-shop-v2/app/pkg/service"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,4 +1,4 @@
-package music_shop
+package app
 
 type Album struct {
 	ID    string `json:"id"`

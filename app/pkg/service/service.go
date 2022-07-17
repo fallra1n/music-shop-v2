@@ -1,6 +1,8 @@
 package service
 
-import "github.com/asssswv/music-shop-v2/pkg/repository"
+import (
+	"github.com/asssswv/music-shop-v2/app/pkg/repository"
+)
 
 type Artist interface {
 }
