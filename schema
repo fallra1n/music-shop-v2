@@ -1,6 +1,6 @@
 "CREATE TABLE IF NOT EXISTS artists(
     id    serial       primary key,
-    title varchar(255) not null,
+    name  varchar(255) not null,
     price integer      not null
 )"
 
@@ -16,13 +16,13 @@
     album_id  integer references albums(id)  on delete cascade not null
 )"
 
-"CREATE TABLE IF NOT EXISTS musics(
+"CREATE TABLE IF NOT EXISTS songs(
     id   serial       primary key,
     name varchar(255) not null,
     age  integer      not null
 )"
 
-"CREATE TABLE IF NOT EXISTS albums_musics(
+"CREATE TABLE IF NOT EXISTS album_song(
     id        serial  primary key,
     album_id  integer references albums(id)  on delete cascade not null,
     music_id  integer references musics(id)  on delete cascade not null,

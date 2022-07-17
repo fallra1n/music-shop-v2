@@ -1,10 +1,12 @@
 package service
 
 import (
+	msh "github.com/asssswv/music-shop-v2/app"
 	"github.com/asssswv/music-shop-v2/app/pkg/repository"
 )
 
 type Artist interface {
+	CreateArtist(artist msh.Artist) (msh.Artist, error)
 }
 
 type Album interface {
@@ -20,5 +22,7 @@ type Service struct {
 }
 
 func NewService(repos *repository.Repository) *Service {
-	return &Service{}
+	return &Service{
+		Artist: NewArtistService(repos.Artist),
+	}
 }

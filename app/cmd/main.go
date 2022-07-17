@@ -7,18 +7,20 @@ import (
 	"github.com/asssswv/music-shop-v2/app/pkg/service"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 )
 
 func main() {
+	logrus.SetFormatter(new(logrus.JSONFormatter))
+
 	if err := InitConfig(); err != nil {
-		log.Fatalf("error init configs: %s", err.Error())
+		logrus.Fatalf("error init configs: %s", err.Error())
 	}
 
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("fail to get password: %s", err.Error())
+		logrus.Fatalf("fail to get password: %s", err.Error())
 	}
 
 	db, err := repository2.NewPostgresDB(repository2.Config{
@@ -31,7 +33,7 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatalf("fail to init db: %s", err.Error())
+		logrus.Fatalf("fail to init db: %s", err.Error())
 	}
 
 	repos := repository2.NewRepository(db)

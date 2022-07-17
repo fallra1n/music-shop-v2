@@ -1,7 +1,7 @@
 package app
 
 type Song struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
-	Text  string `json:"text"`
+	ID    int    `json:"id"`
+	Title string `json:"title" binding:"required"`
+	Text  string `json:"text" binding:"required"`
 }

@@ -1,7 +1,7 @@
 package app
 
 type Artist struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Age  int    `json:"age"`
+	ID   int    `json:"id"`
+	Name string `json:"name" binding:"required"`
+	Age  int    `json:"age" binding:"required"`
 }
