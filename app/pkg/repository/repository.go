@@ -5,8 +5,20 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+const (
+	artistsTable      = "artists"
+	albumsTable       = "albums"
+	songsTable        = "songs"
+	artistAlbumsTable = "artist_albums"
+	albumSongsTable   = "album_songs"
+)
+
 type Artist interface {
-	CreateArtist(artist msh.Artist) (msh.Artist, error)
+	Create(artist msh.Artist) (msh.Artist, error)
+	Update(id int, input msh.UpdateArtistInput) error
+	GetAll() ([]msh.Artist, error)
+	GetByID(id int) (msh.GetArtistWithAlbums, error)
+	Delete(id int) error
 }
 
 type Album interface {

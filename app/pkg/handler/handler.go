@@ -16,13 +16,12 @@ func NewHandler(services *service.Service) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 	gin.SetMode(gin.ReleaseMode)
-	router.GET("/", getHomePage)
 
 	api := router.Group("/api")
 	{
 		artists := api.Group("/artists")
 		{
-			artists.POST("/", h.createArtist)
+			artists.POST("/", h.createArtist) // done
 			artists.GET("/", h.getArtists)
 			artists.GET("/:id", h.getArtistByID)
 			artists.PUT("/:id", h.updateArtist)
@@ -37,7 +36,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			albums.PUT("/:id", h.updateAlbum)
 			albums.DELETE("/:id", h.deleteAlbum)
 
-			songs := albums.Group("/:id/items")
+			songs := albums.Group("/:id/songs")
 			{
 				songs.POST("/", h.createSong)
 				songs.GET("/", h.getSongs)

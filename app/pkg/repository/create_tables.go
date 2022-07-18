@@ -72,7 +72,7 @@ func (ct *CreateTables) CreateSongsSchema() error {
 }
 
 func (ct *CreateTables) CreateArtistAlbumSchema() error {
-	query := "CREATE TABLE IF NOT EXISTS artist_album(" +
+	query := "CREATE TABLE IF NOT EXISTS artist_albums(" +
 		"id serial primary key," +
 		"artist_id integer references artists(id) on delete cascade not null," +
 		"album_id integer references albums(id) on delete cascade not null" +
@@ -85,7 +85,7 @@ func (ct *CreateTables) CreateArtistAlbumSchema() error {
 }
 
 func (ct *CreateTables) CreateAlbumSongSchema() error {
-	query := "CREATE TABLE IF NOT EXISTS album_song(" +
+	query := "CREATE TABLE IF NOT EXISTS album_songs(" +
 		"id serial primary key," +
 		"album_id integer references albums(id) on delete cascade not null," +
 		"song_id integer references songs(id) on delete cascade not null" +
