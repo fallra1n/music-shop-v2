@@ -1,27 +1,41 @@
 package app
 
 import (
-	"github.com/gin-gonic/gin"
+	"context"
+	"net/http"
+	"time"
 )
 
 type Server struct {
-	router *gin.Engine
+	httpServer *http.Server
 }
 
-func (s *Server) InitRouter(router *gin.Engine) {
-	s.router = router
+func (s *Server) Run(port string, handler http.Handler) error {
+	s.httpServer = &http.Server{
+		Addr:           ":" + port,
+		MaxHeaderBytes: 1 << 20, // 1 MB
+		Handler:        handler,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+	}
+
+	return s.httpServer.ListenAndServe()
 }
 
-func (s *Server) GetRouter() *gin.Engine {
-	return s.router
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.httpServer.Shutdown(ctx)
 }
 
-func (s *Server) RunServer(port string) {
-	_ = s.router.Run("localhost:" + port)
-}
-
-func NewServer() *Server {
-	return new(Server)
-}
-
-var Srv = NewServer()
+//func (s *Server) GetRouter() *gin.Engine {
+//	return s.router
+//}
+//
+//func (s *Server) RunServer(port string) {
+//	_ = s.router.Run("localhost:" + port)
+//}
+//
+//func NewServer() *Server {
+//	return new(Server)
+//}
+//
+//var Srv = NewServer()

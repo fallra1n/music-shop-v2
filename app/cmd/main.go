@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	msh "github.com/asssswv/music-shop-v2/app"
 	"github.com/asssswv/music-shop-v2/app/pkg/handler"
 	repository2 "github.com/asssswv/music-shop-v2/app/pkg/repository"
@@ -10,6 +11,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -39,8 +42,25 @@ func main() {
 	repos := repository2.NewRepository(db)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
-	msh.Srv.InitRouter(handlers.InitRoutes())
-	msh.Srv.RunServer(viper.GetString("port"))
+	srv := new(msh.Server)
+
+	go func() {
+		if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
+			logrus.Fatalf("error ocurred while running http server: %s", err.Error())
+		}
+	}()
+
+	qiut := make(chan os.Signal, 1)
+	signal.Notify(qiut, syscall.SIGTERM, syscall.SIGINT)
+	<-qiut
+
+	if err := srv.Shutdown(context.Background()); err != nil {
+		logrus.Errorf("error ocurred on server shutting down: %s", err.Error())
+	}
+
+	if err := db.Close(); err != nil {
+		logrus.Errorf("error ocurred on db connection close: %s", err.Error())
+	}
 }
 
 func InitConfig() error {
