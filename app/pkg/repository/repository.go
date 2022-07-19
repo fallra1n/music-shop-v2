@@ -23,8 +23,10 @@ type Artist interface {
 
 type Album interface {
 	Create(artistID int, album msh.Album) (msh.Album, error)
-	GetByID(artistID, albumID int) (msh.GetAlbum, error)
+	GetByID(artistID, albumID int) (msh.GetAlbumOutput, error)
 	DeleteAll(artistID int) error
+	Delete(albumID int) error
+	Update(albumID int, input msh.UpdateAlbumInput) error
 }
 
 type Song interface {

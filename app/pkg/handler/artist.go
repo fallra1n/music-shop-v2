@@ -84,8 +84,7 @@ func (h *Handler) updateArtist(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Update(id, input)
-	if err != nil {
+	if err = h.services.Artist.Update(id, input); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -100,7 +99,7 @@ func (h *Handler) deleteArtist(c *gin.Context) {
 		return
 	}
 
-	if err = h.services.Delete(id); err != nil {
+	if err = h.services.Artist.Delete(id); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}

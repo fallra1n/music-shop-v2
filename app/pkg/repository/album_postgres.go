@@ -5,6 +5,7 @@ import (
 	"fmt"
 	msh "github.com/asssswv/music-shop-v2/app"
 	"github.com/jmoiron/sqlx"
+	"strings"
 )
 
 type AlbumPostgres struct {
@@ -43,34 +44,34 @@ func (ap *AlbumPostgres) Create(artistID int, album msh.Album) (msh.Album, error
 	return newAlbum, tx.Commit()
 }
 
-func (ap *AlbumPostgres) GetByID(artistID, albumID int) (msh.GetAlbum, error) {
+func (ap *AlbumPostgres) GetByID(artistID, albumID int) (msh.GetAlbumOutput, error) {
 	tx, err := ap.db.Begin()
 	if err != nil {
-		return msh.GetAlbum{}, err
+		return msh.GetAlbumOutput{}, err
 	}
 	queryCheck := fmt.Sprintf("SELECT * FROM %s aa WHERE aa.artist_id=$1 AND aa.album_id=$2", artistAlbumsTable)
 	a, er := ap.db.Exec(queryCheck, artistID, albumID)
 
 	if er != nil {
 		_ = tx.Rollback()
-		return msh.GetAlbum{}, err
+		return msh.GetAlbumOutput{}, err
 	}
 
 	rAff, rAffErr := a.RowsAffected()
 	if rAffErr != nil {
-		return msh.GetAlbum{}, rAffErr
+		return msh.GetAlbumOutput{}, rAffErr
 	}
 
 	if rAff == 0 {
-		return msh.GetAlbum{}, errors.New("this album or artist was deleted")
+		return msh.GetAlbumOutput{}, errors.New("this album or artist was deleted")
 	}
 
-	var album msh.GetAlbum
+	var album msh.GetAlbumOutput
 	queryGet := fmt.Sprintf("SELECT al.title, al.price, al.artist, al.date FROM %s al WHERE al.id=$1", albumsTable)
 
 	if err = ap.db.Get(&album, queryGet, albumID); err != nil {
 		_ = tx.Rollback()
-		return msh.GetAlbum{}, err
+		return msh.GetAlbumOutput{}, err
 	}
 	artistID++
 	return album, nil
@@ -82,4 +83,51 @@ func (ap *AlbumPostgres) DeleteAll(artistID int) error {
 	}
 
 	return nil
+}
+
+func (ap *AlbumPostgres) Delete(albumID int) error {
+	query := fmt.Sprintf("DELETE FROM %s al WHERE al.id=$1", albumsTable)
+
+	if _, err := ap.db.Exec(query, albumID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ap *AlbumPostgres) Update(albumID int, input msh.UpdateAlbumInput) error {
+	setValues := make([]string, 0)
+	args := make([]any, 0)
+	argID := 1
+
+	if input.Title != nil {
+		setValues = append(setValues, fmt.Sprintf("title=$%d", argID))
+		args = append(args, *input.Title)
+		argID++
+	}
+
+	if input.Price != nil {
+		setValues = append(setValues, fmt.Sprintf("price=$%d", argID))
+		args = append(args, *input.Price)
+		argID++
+	}
+
+	if input.Artist != nil {
+		setValues = append(setValues, fmt.Sprintf("artist=$%d", argID))
+		args = append(args, *input.Artist)
+		argID++
+	}
+
+	if input.UpdateDate != nil {
+		setValues = append(setValues, fmt.Sprintf("update_date=$%d", argID))
+		args = append(args, *input.UpdateDate)
+		argID++
+	}
+
+	setQuery := strings.Join(setValues, ", ")
+
+	query := fmt.Sprintf("UPDATE %s a SET %s WHERE a.id = %d", albumsTable, setQuery, albumID)
+
+	_, err := ap.db.Exec(query, args...)
+	return err
 }

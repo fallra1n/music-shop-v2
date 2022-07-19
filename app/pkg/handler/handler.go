@@ -29,11 +29,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 			albums := artists.Group("/:id/albums")
 			{
-				albums.POST("/", h.createAlbum) // done
-				albums.GET("/:album_id", h.getAlbumByID)
+				albums.POST("/", h.createAlbum)          // done
+				albums.GET("/:album_id", h.getAlbumByID) // done
 				albums.PUT("/:album_id", h.updateAlbum)
-				albums.DELETE("/", h.deleteAllAlbums)
-				albums.DELETE("/:album_id", h.deleteAlbum)
+				albums.DELETE("/", h.deleteAllAlbums)      // done
+				albums.DELETE("/:album_id", h.deleteAlbum) // done
 
 				songs := albums.Group("/:album_id/songs")
 				{

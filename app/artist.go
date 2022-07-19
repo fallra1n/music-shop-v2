@@ -14,9 +14,9 @@ type UpdateArtistInput struct {
 }
 
 type GetArtistWithAlbums struct {
-	Name   string     `json:"name"`
-	Age    int        `json:"age"`
-	Albums []GetAlbum `json:"albums"`
+	Name   string           `json:"name"`
+	Age    int              `json:"age"`
+	Albums []GetAlbumOutput `json:"albums"`
 }
 
 func (input *UpdateArtistInput) Validate() error {

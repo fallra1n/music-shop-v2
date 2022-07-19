@@ -21,19 +21,15 @@ func (as *AlbumService) Create(artistID int, album msh.Album) (msh.Album, error)
 	return newAlbum, nil
 }
 
-//func (as *AlbumService) Update(id int, input msh.UpdateArtistInput) error {
-//	if err := input.Validate(); err != nil {
-//		return err
-//	}
-//
-//	return as.repo.Update(id, input)
-//}
-//
-//func (as *AlbumService) GetAll() ([]msh.Artist, error) {
-//	return as.repo.GetAll()
-//}
-//
-func (as *AlbumService) GetByID(artistID, albumID int) (msh.GetAlbum, error) {
+func (as *AlbumService) Update(id int, input msh.UpdateAlbumInput) error {
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	return as.repo.Update(id, input)
+}
+
+func (as *AlbumService) GetByID(artistID, albumID int) (msh.GetAlbumOutput, error) {
 	return as.repo.GetByID(artistID, albumID)
 }
 
@@ -41,7 +37,6 @@ func (as *AlbumService) DeleteAll(artistID int) error {
 	return as.repo.DeleteAll(artistID)
 }
 
-//
-//func (as *AlbumService) Delete(id int) error {
-//	return as.repo.Delete(id)
-//}
+func (as *AlbumService) Delete(albumID int) error {
+	return as.repo.Delete(albumID)
+}
