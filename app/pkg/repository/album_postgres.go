@@ -35,8 +35,7 @@ func (ap *AlbumPostgres) Create(artistID int, album msh.Album) (msh.Album, error
 
 	queryAddInArtistAlbums := fmt.Sprintf("INSERT INTO %s (artist_id, album_id) VALUES ($1, $2)", artistAlbumsTable)
 
-	_, err = ap.db.Exec(queryAddInArtistAlbums, artistID, newAlbum.ID)
-	if err != nil {
+	if _, err = ap.db.Exec(queryAddInArtistAlbums, artistID, newAlbum.ID); err != nil {
 		_ = tx.Rollback()
 		return msh.Album{}, err
 	}

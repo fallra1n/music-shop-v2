@@ -14,11 +14,7 @@ func NewArtistService(repo repository.Artist) *ArtistService {
 }
 
 func (as *ArtistService) Create(artist msh.Artist) (msh.Artist, error) {
-	newArtist, err := as.repo.Create(artist)
-	if err != nil {
-		return msh.Artist{}, err
-	}
-	return newArtist, nil
+	return as.repo.Create(artist)
 }
 
 func (as *ArtistService) Update(id int, input msh.UpdateArtistInput) error {

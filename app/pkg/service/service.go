@@ -22,6 +22,7 @@ type Album interface {
 }
 
 type Song interface {
+	Create(albumID int, input msh.Song) (msh.Song, error)
 }
 
 type Service struct {
@@ -34,5 +35,6 @@ func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Artist: NewArtistService(repos.Artist),
 		Album:  NewAlbumService(repos.Album),
+		Song:   NewSongService(repos.Song),
 	}
 }

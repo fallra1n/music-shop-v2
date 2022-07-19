@@ -30,6 +30,7 @@ type Album interface {
 }
 
 type Song interface {
+	Create(albumID int, input msh.Song) (msh.Song, error)
 }
 
 type Repository struct {
@@ -42,5 +43,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Artist: NewArtistPostgres(db),
 		Album:  NewAlbumPostgres(db),
+		Song:   NewSongPostgres(db),
 	}
 }
