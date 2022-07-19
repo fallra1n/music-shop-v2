@@ -14,6 +14,9 @@ type Artist interface {
 }
 
 type Album interface {
+	Create(artistID int, album msh.Album) (msh.Album, error)
+	GetByID(artistID, albumID int) (msh.GetAlbum, error)
+	DeleteAll(artistID int) error
 }
 
 type Song interface {
@@ -28,5 +31,6 @@ type Service struct {
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Artist: NewArtistService(repos.Artist),
+		Album:  NewAlbumService(repos.Album),
 	}
 }

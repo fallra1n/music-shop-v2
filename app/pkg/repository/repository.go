@@ -22,6 +22,9 @@ type Artist interface {
 }
 
 type Album interface {
+	Create(artistID int, album msh.Album) (msh.Album, error)
+	GetByID(artistID, albumID int) (msh.GetAlbum, error)
+	DeleteAll(artistID int) error
 }
 
 type Song interface {
@@ -36,5 +39,6 @@ type Repository struct {
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Artist: NewArtistPostgres(db),
+		Album:  NewAlbumPostgres(db),
 	}
 }

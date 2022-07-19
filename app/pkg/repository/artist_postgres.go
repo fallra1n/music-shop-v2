@@ -16,14 +16,13 @@ func NewArtistPostgres(db *sqlx.DB) *ArtistPostgres {
 }
 
 func (ap *ArtistPostgres) Create(artist msh.Artist) (msh.Artist, error) {
-	var id, age int
-	var name string
+	var newArtist msh.Artist
 	query := fmt.Sprintf("INSERT INTO %s (name, age) values ($1, $2) RETURNING id, name, age", artistsTable)
 	row := ap.db.QueryRow(query, artist.Name, artist.Age)
-	if err := row.Scan(&id, &name, &age); err != nil {
+	if err := row.Scan(&newArtist.ID, &newArtist.Name, &newArtist.Age); err != nil {
 		return msh.Artist{}, err
 	}
-	return msh.Artist{ID: id, Name: name, Age: age}, nil
+	return newArtist, nil
 }
 
 func (ap *ArtistPostgres) Update(id int, input msh.UpdateArtistInput) error {
@@ -82,7 +81,7 @@ func (ap *ArtistPostgres) GetByID(id int) (msh.GetArtistWithAlbums, error) {
 	artistWithAlbums.Name = artist.Name
 	artistWithAlbums.Age = artist.Age
 
-	getAlbumsIDQuery := fmt.Sprintf("SELECT al.* FROM %s al LEFT JOIN %s aa "+
+	getAlbumsIDQuery := fmt.Sprintf("SELECT al.title, al.price, al.artist, al.date FROM %s al LEFT JOIN %s aa "+
 		"on aa.album_id=al.id WHERE aa.artist_id=%d", albumsTable, artistAlbumsTable, id)
 
 	if err = ap.db.Select(&artistWithAlbums.Albums, getAlbumsIDQuery); err != nil {
@@ -93,7 +92,14 @@ func (ap *ArtistPostgres) GetByID(id int) (msh.GetArtistWithAlbums, error) {
 }
 
 func (ap *ArtistPostgres) Delete(id int) error {
+	if err := DeleteAll(ap.db, id); err != nil {
+		return err
+	}
+
 	query := fmt.Sprintf("DELETE FROM %s ar WHERE ar.id=$1", artistsTable)
-	_, err := ap.db.Exec(query, id)
-	return err
+	if _, err := ap.db.Exec(query, id); err != nil {
+		return err
+	}
+
+	return nil
 }

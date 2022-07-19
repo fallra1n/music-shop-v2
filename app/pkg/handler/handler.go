@@ -21,28 +21,28 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		artists := api.Group("/artists")
 		{
-			artists.POST("/", h.createArtist) // done
-			artists.GET("/", h.getArtists)
-			artists.GET("/:id", h.getArtistByID)
-			artists.PUT("/:id", h.updateArtist)
-			artists.DELETE("/:id", h.deleteArtist)
-		}
+			artists.POST("/", h.createArtist)      // done
+			artists.GET("/", h.getArtists)         // done
+			artists.GET("/:id", h.getArtistByID)   // done
+			artists.PUT("/:id", h.updateArtist)    // done
+			artists.DELETE("/:id", h.deleteArtist) // done
 
-		albums := api.Group("/albums")
-		{
-			albums.POST("/", h.createAlbum)
-			albums.GET("/", h.getAlbums)
-			albums.GET("/:id", h.getAlbumByID)
-			albums.PUT("/:id", h.updateAlbum)
-			albums.DELETE("/:id", h.deleteAlbum)
-
-			songs := albums.Group("/:id/songs")
+			albums := artists.Group("/:id/albums")
 			{
-				songs.POST("/", h.createSong)
-				songs.GET("/", h.getSongs)
-				songs.GET("/:song_id", h.getSongByID)
-				songs.PUT("/:song_id", h.updateSong)
-				songs.DELETE("/:song_id", h.deleteSong)
+				albums.POST("/", h.createAlbum) // done
+				albums.GET("/:album_id", h.getAlbumByID)
+				albums.PUT("/:album_id", h.updateAlbum)
+				albums.DELETE("/", h.deleteAllAlbums)
+				albums.DELETE("/:album_id", h.deleteAlbum)
+
+				songs := albums.Group("/:album_id/songs")
+				{
+					songs.POST("/", h.createSong)
+					songs.GET("/", h.getSongs)
+					songs.GET("/:song_id", h.getSongByID)
+					songs.PUT("/:song_id", h.updateSong)
+					songs.DELETE("/:song_id", h.deleteSong)
+				}
 			}
 		}
 	}

@@ -49,7 +49,9 @@ func (ct *CreateTables) CreateAlbumsSchema() error {
 	query := "CREATE TABLE IF NOT EXISTS albums(" +
 		"id serial primary key," +
 		"title varchar(255) not null," +
-		"price decimal not null" +
+		"price decimal not null," +
+		"artist varchar(255) not null," +
+		"date varchar(255) not null" +
 		")"
 
 	if _, err := ct.db.Exec(query); err != nil {

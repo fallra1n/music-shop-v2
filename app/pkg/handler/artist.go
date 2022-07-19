@@ -23,13 +23,13 @@ func (h *Handler) createArtist(c *gin.Context) {
 		return
 	}
 
-	newArtist, err := h.services.Create(input)
+	newArtist, err := h.services.Artist.Create(input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, map[string]interface{}{
+	c.JSON(http.StatusCreated, map[string]any{
 		"id":   newArtist.ID,
 		"name": newArtist.Name,
 		"age":  newArtist.Age,
@@ -58,7 +58,7 @@ func (h *Handler) getArtistByID(c *gin.Context) {
 
 	var artistInfo msh.GetArtistWithAlbums
 
-	artistInfo, err = h.services.GetByID(id)
+	artistInfo, err = h.services.Artist.GetByID(id)
 
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
