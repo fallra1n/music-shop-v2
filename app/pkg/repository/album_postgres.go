@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
 	msh "github.com/asssswv/music-shop-v2/app"
 	"github.com/jmoiron/sqlx"
@@ -48,21 +47,9 @@ func (ap *AlbumPostgres) GetByID(artistID, albumID int) (msh.GetAlbumOutput, err
 	if err != nil {
 		return msh.GetAlbumOutput{}, err
 	}
-	queryCheck := fmt.Sprintf("SELECT * FROM %s aa WHERE aa.artist_id=$1 AND aa.album_id=$2", artistAlbumsTable)
-	a, er := ap.db.Exec(queryCheck, artistID, albumID)
 
-	if er != nil {
-		_ = tx.Rollback()
+	if err = CheckForAvailabilityInAlbums(ap.db, tx, artistID, albumID); err != nil {
 		return msh.GetAlbumOutput{}, err
-	}
-
-	rAff, rAffErr := a.RowsAffected()
-	if rAffErr != nil {
-		return msh.GetAlbumOutput{}, rAffErr
-	}
-
-	if rAff == 0 {
-		return msh.GetAlbumOutput{}, errors.New("this album or artist was deleted")
 	}
 
 	var album msh.GetAlbumOutput
@@ -77,24 +64,41 @@ func (ap *AlbumPostgres) GetByID(artistID, albumID int) (msh.GetAlbumOutput, err
 }
 
 func (ap *AlbumPostgres) DeleteAll(artistID int) error {
-	if err := DeleteAll(ap.db, artistID); err != nil {
+	if err := DeleteAllAlbums(ap.db, artistID); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (ap *AlbumPostgres) Delete(albumID int) error {
+func (ap *AlbumPostgres) Delete(artistID, albumID int) error {
+	tx, err := ap.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	if err = CheckForAvailabilityInAlbums(ap.db, tx, artistID, albumID); err != nil {
+		return err
+	}
+
 	query := fmt.Sprintf("DELETE FROM %s al WHERE al.id=$1", albumsTable)
-
-	if _, err := ap.db.Exec(query, albumID); err != nil {
+	if _, err = ap.db.Exec(query, albumID); err != nil {
 		return err
 	}
 
-	return nil
+	return tx.Commit()
 }
 
-func (ap *AlbumPostgres) Update(albumID int, input msh.UpdateAlbumInput) error {
+func (ap *AlbumPostgres) Update(artistID, albumID int, input msh.UpdateAlbumInput) error {
+	tx, err := ap.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	if err = CheckForAvailabilityInAlbums(ap.db, tx, artistID, albumID); err != nil {
+		return err
+	}
+
 	setValues := make([]string, 0)
 	args := make([]any, 0)
 	argID := 1
@@ -127,6 +131,8 @@ func (ap *AlbumPostgres) Update(albumID int, input msh.UpdateAlbumInput) error {
 
 	query := fmt.Sprintf("UPDATE %s a SET %s WHERE a.id = %d", albumsTable, setQuery, albumID)
 
-	_, err := ap.db.Exec(query, args...)
-	return err
+	if _, err = ap.db.Exec(query, args...); err != nil {
+		return err
+	}
+	return tx.Commit()
 }

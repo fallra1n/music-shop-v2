@@ -66,6 +66,12 @@ func (h *Handler) getAlbumByID(c *gin.Context) {
 }
 
 func (h *Handler) updateAlbum(c *gin.Context) {
+	artistID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
 	albumID, err := strconv.Atoi(c.Param("album_id"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
@@ -79,7 +85,7 @@ func (h *Handler) updateAlbum(c *gin.Context) {
 		return
 	}
 
-	if err = h.services.Album.Update(albumID, input); err != nil {
+	if err = h.services.Album.Update(artistID, albumID, input); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -103,13 +109,19 @@ func (h *Handler) deleteAllAlbums(c *gin.Context) {
 }
 
 func (h *Handler) deleteAlbum(c *gin.Context) {
+	artistID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
 	albumID, err := strconv.Atoi(c.Param("album_id"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err = h.services.Album.Delete(albumID); err != nil {
+	if err = h.services.Album.Delete(artistID, albumID); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
