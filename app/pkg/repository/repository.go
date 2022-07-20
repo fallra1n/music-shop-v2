@@ -25,14 +25,15 @@ type Album interface {
 	Create(artistID int, album msh.Album) (msh.Album, error)
 	GetByID(artistID, albumID int) (msh.GetAlbumOutput, error)
 	DeleteAll(artistID int) error
-	Delete(albumID int) error
-	Update(albumID int, input msh.UpdateAlbumInput) error
+	Delete(artistID, albumID int) error
+	Update(artistID, albumID int, input msh.UpdateAlbumInput) error
 }
 
 type Song interface {
 	Create(albumID int, input msh.Song) (msh.Song, error)
 	GetAll(albumID int) ([]msh.Song, error)
-	GetByID(songID int) (msh.GetSongOutput, error)
+	GetByID(albumID, songID int) (msh.GetSongOutput, error)
+	Delete(albumID, songID int) error
 }
 
 type Repository struct {

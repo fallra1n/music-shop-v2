@@ -53,13 +53,46 @@ func (sp *SongPostgres) GetAll(albumID int) ([]msh.Song, error) {
 	return songs, nil
 }
 
-func (sp *SongPostgres) GetByID(songID int) (msh.GetSongOutput, error) {
-	var song msh.GetSongOutput
-
-	query := fmt.Sprintf("SELECT st.title, st.text, st.album FROM %s st WHERE st.id=%d", songsTable, songID)
-	if err := sp.db.Get(&song, query); err != nil {
-		return msh.GetSongOutput{}, nil
+func (sp *SongPostgres) GetByID(albumID, songID int) (msh.GetSongOutput, error) {
+	tx, err := sp.db.Begin()
+	if err != nil {
+		return msh.GetSongOutput{}, err
 	}
 
-	return song, nil
+	if err = CheckForAvailabilityInSongs(sp.db, tx, albumID, songID); err != nil {
+		return msh.GetSongOutput{}, err
+	}
+
+	var song msh.GetSongOutput
+	query := fmt.Sprintf("SELECT st.title, st.text, st.album FROM %s st WHERE st.id=%d", songsTable, songID)
+
+	if err := sp.db.Get(&song, query); err != nil {
+		_ = tx.Rollback()
+		return msh.GetSongOutput{}, err
+	}
+
+	return song, tx.Commit()
 }
+
+func (sp *SongPostgres) Delete(albumID, songID int) error {
+	tx, err := sp.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	if err = CheckForAvailabilityInSongs(sp.db, tx, albumID, songID); err != nil {
+		return err
+	}
+
+	query := fmt.Sprintf("DELETE FROM %s st WHERE st.id=$1", songsTable)
+	if _, err = sp.db.Exec(query, songID); err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
+}
+
+//func (sp *SongPostgres) DeleteAll(song ID int) error {
+//
+//}

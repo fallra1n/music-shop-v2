@@ -69,13 +69,14 @@ func (h *Handler) getSongs(c *gin.Context) {
 }
 
 func (h *Handler) getSongByID(c *gin.Context) {
-	_, _, songID, err := CheckAllID(c)
+	_, albumID, songID, err := CheckAllID(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	var song msh.GetSongOutput
-	if song, err = h.services.Song.GetByID(songID); err != nil {
+	if song, err = h.services.Song.GetByID(albumID, songID); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -91,4 +92,16 @@ func (h *Handler) updateSong(c *gin.Context) {
 }
 
 func (h *Handler) deleteSong(c *gin.Context) {
+	_, albumID, songID, err := CheckAllID(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err = h.services.Song.Delete(albumID, songID); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{"ok"})
 }

@@ -21,6 +21,10 @@ func (ss *SongService) GetAll(albumID int) ([]msh.Song, error) {
 	return ss.repo.GetAll(albumID)
 }
 
-func (ss *SongService) GetByID(songID int) (msh.GetSongOutput, error) {
-	return ss.repo.GetByID(songID)
+func (ss *SongService) GetByID(albumID, songID int) (msh.GetSongOutput, error) {
+	return ss.repo.GetByID(albumID, songID)
+}
+
+func (ss *SongService) Delete(albumID, songID int) error {
+	return ss.repo.Delete(albumID, songID)
 }

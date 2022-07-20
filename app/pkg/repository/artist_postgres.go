@@ -92,7 +92,7 @@ func (ap *ArtistPostgres) GetByID(id int) (msh.GetArtistWithAlbums, error) {
 }
 
 func (ap *ArtistPostgres) Delete(id int) error {
-	if err := DeleteAll(ap.db, id); err != nil {
+	if err := DeleteAllAlbums(ap.db, id); err != nil {
 		return err
 	}
 
