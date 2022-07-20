@@ -16,3 +16,11 @@ func NewSongService(repo repository.Song) *SongService {
 func (ss *SongService) Create(albumID int, input msh.Song) (msh.Song, error) {
 	return ss.repo.Create(albumID, input)
 }
+
+func (ss *SongService) GetAll(albumID int) ([]msh.Song, error) {
+	return ss.repo.GetAll(albumID)
+}
+
+func (ss *SongService) GetByID(songID int) (msh.GetSongOutput, error) {
+	return ss.repo.GetByID(songID)
+}

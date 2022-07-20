@@ -27,7 +27,7 @@ func (h *Handler) createAlbum(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]any{
+	c.JSON(http.StatusCreated, map[string]any{
 		"id":     newAlbum.ID,
 		"title":  newAlbum.Title,
 		"price":  newAlbum.Price,

@@ -23,6 +23,8 @@ type Album interface {
 
 type Song interface {
 	Create(albumID int, input msh.Song) (msh.Song, error)
+	GetAll(albumID int) ([]msh.Song, error)
+	GetByID(songID int) (msh.GetSongOutput, error)
 }
 
 type Service struct {

@@ -118,7 +118,7 @@ func (ap *AlbumPostgres) Update(albumID int, input msh.UpdateAlbumInput) error {
 	}
 
 	if input.UpdateDate != nil {
-		setValues = append(setValues, fmt.Sprintf("update_date=$%d", argID))
+		setValues = append(setValues, fmt.Sprintf("date=$%d", argID))
 		args = append(args, *input.UpdateDate)
 		argID++
 	}

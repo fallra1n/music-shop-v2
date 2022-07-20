@@ -4,16 +4,19 @@ import (
 	msh "github.com/asssswv/music-shop-v2/app"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
+type getAllSongsResponse struct {
+	Data []msh.Song `json:"data"`
+}
+
 func (h *Handler) createSong(c *gin.Context) {
-	if _, err := strconv.Atoi(c.Param("id")); err != nil {
+	if _, err := CheckID(c, "id"); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	albumID, err := strconv.Atoi(c.Param("album_id"))
+	albumID, err := CheckID(c, "album_id")
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -32,7 +35,7 @@ func (h *Handler) createSong(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]any{
+	c.JSON(http.StatusCreated, map[string]any{
 		"id":    newSong.ID,
 		"title": newSong.Title,
 		"text":  newSong.Text,
@@ -41,9 +44,47 @@ func (h *Handler) createSong(c *gin.Context) {
 }
 
 func (h *Handler) getSongs(c *gin.Context) {
+	if _, err := CheckID(c, "id"); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	albumID, err := CheckID(c, "album_id")
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var songs []msh.Song
+	songs, err = h.services.Song.GetAll(albumID)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, getAllSongsResponse{
+		Data: songs,
+	})
 }
 
 func (h *Handler) getSongByID(c *gin.Context) {
+	_, _, songID, err := CheckAllID(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	var song msh.GetSongOutput
+	if song, err = h.services.Song.GetByID(songID); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]any{
+		"title": song.Title,
+		"text":  song.Text,
+		"album": song.Album,
+	})
 }
 
 func (h *Handler) updateSong(c *gin.Context) {

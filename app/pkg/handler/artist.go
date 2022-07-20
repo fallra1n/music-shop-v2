@@ -37,7 +37,7 @@ func (h *Handler) createArtist(c *gin.Context) {
 }
 
 func (h *Handler) getArtists(c *gin.Context) {
-	artists, err := h.services.GetAll()
+	artists, err := h.services.Artist.GetAll()
 
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())

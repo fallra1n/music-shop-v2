@@ -39,3 +39,27 @@ func (sp *SongPostgres) Create(albumID int, input msh.Song) (msh.Song, error) {
 
 	return newSong, nil
 }
+
+func (sp *SongPostgres) GetAll(albumID int) ([]msh.Song, error) {
+	songs := make([]msh.Song, 0)
+
+	query := fmt.Sprintf("SELECT st.id, st.title, st.text, st.album FROM %s st LEFT JOIN %s ast "+
+		"on ast.song_id=st.id WHERE ast.album_id=%d", songsTable, albumSongsTable, albumID)
+
+	if err := sp.db.Select(&songs, query); err != nil {
+		return []msh.Song{}, err
+	}
+
+	return songs, nil
+}
+
+func (sp *SongPostgres) GetByID(songID int) (msh.GetSongOutput, error) {
+	var song msh.GetSongOutput
+
+	query := fmt.Sprintf("SELECT st.title, st.text, st.album FROM %s st WHERE st.id=%d", songsTable, songID)
+	if err := sp.db.Get(&song, query); err != nil {
+		return msh.GetSongOutput{}, nil
+	}
+
+	return song, nil
+}
