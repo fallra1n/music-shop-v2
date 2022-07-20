@@ -1,3 +1,5 @@
+// Package repository
+// this file is not a middleware in the usual sense of this technology
 package repository
 
 import (
@@ -10,17 +12,24 @@ import (
 // DeleteAllAlbums a helper function that is used to delete all albums from a certain artist,
 // this function is also used when deleting an artist,
 // so it is moved to the middleware
-func DeleteAllAlbums(db *sqlx.DB, artistID int) error {
+func DeleteAllAlbums(db *sqlx.DB, tx *sql.Tx, artistID int) error {
 	queryGetAlbums := fmt.Sprintf("SELECT aa.album_id FROM %s aa WHERE aa.artist_id=$1", artistAlbumsTable)
 
 	var indexes []int
 	if err := db.Select(&indexes, queryGetAlbums, artistID); err != nil {
+		_ = tx.Rollback()
 		return err
 	}
 
 	for _, id := range indexes {
+		// First we need to delete all songs on this album
+		if err := DeleteAllSongs(db, tx, id); err != nil {
+			return err
+		}
+
 		queryDelAlbum := fmt.Sprintf("DELETE FROM %s al WHERE al.id=$1", albumsTable)
 		if _, err := db.Exec(queryDelAlbum, id); err != nil {
+			_ = tx.Rollback()
 			return err
 		}
 	}
@@ -29,8 +38,8 @@ func DeleteAllAlbums(db *sqlx.DB, artistID int) error {
 }
 
 // CheckForAvailabilityInAlbums a helper function,
-// this function is used to check if a album is on an artist_albums table
-func CheckForAvailabilityInAlbums(db *sqlx.DB, tx *sql.Tx, artistID, albumID int) error {
+// this function is used to check if an album is on an artist_albums table
+func CheckForAvailabilityInArtistAlbums(db *sqlx.DB, tx *sql.Tx, artistID, albumID int) error {
 	queryCheck := fmt.Sprintf("SELECT * FROM %s aa WHERE aa.artist_id=$1 AND aa.album_id=$2", artistAlbumsTable)
 	a, errCheck := db.Exec(queryCheck, artistID, albumID)
 

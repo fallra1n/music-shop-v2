@@ -105,3 +105,17 @@ func (h *Handler) deleteSong(c *gin.Context) {
 
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
+
+func (h *Handler) deleteAllSongs(c *gin.Context) {
+	albumID, err := CheckID(c, "album_id")
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err = h.services.Song.DeleteAll(albumID); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	c.JSON(http.StatusOK, statusResponse{"ok"})
+}

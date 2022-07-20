@@ -100,7 +100,7 @@ func (h *Handler) deleteAllAlbums(c *gin.Context) {
 		return
 	}
 
-	if err := h.services.DeleteAll(artistID); err != nil {
+	if err := h.services.Album.DeleteAll(artistID); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}

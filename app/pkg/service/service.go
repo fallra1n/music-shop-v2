@@ -26,6 +26,7 @@ type Song interface {
 	GetAll(albumID int) ([]msh.Song, error)
 	GetByID(albumID, songID int) (msh.GetSongOutput, error)
 	Delete(albumID, songID int) error
+	DeleteAll(albumID int) error
 }
 
 type Service struct {

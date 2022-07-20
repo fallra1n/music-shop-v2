@@ -1,3 +1,5 @@
+// Package handler
+// this file is not a middleware in the usual sense of this technology
 package handler
 
 import (

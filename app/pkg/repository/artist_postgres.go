@@ -92,14 +92,16 @@ func (ap *ArtistPostgres) GetByID(id int) (msh.GetArtistWithAlbums, error) {
 }
 
 func (ap *ArtistPostgres) Delete(id int) error {
-	if err := DeleteAllAlbums(ap.db, id); err != nil {
+	tx, err := ap.db.Begin()
+	if err := DeleteAllAlbums(ap.db, tx, id); err != nil {
 		return err
 	}
 
 	query := fmt.Sprintf("DELETE FROM %s ar WHERE ar.id=$1", artistsTable)
-	if _, err := ap.db.Exec(query, id); err != nil {
+	if _, err = ap.db.Exec(query, id); err != nil {
+		_ = tx.Rollback()
 		return err
 	}
 
-	return nil
+	return tx.Commit()
 }

@@ -48,7 +48,7 @@ func (ap *AlbumPostgres) GetByID(artistID, albumID int) (msh.GetAlbumOutput, err
 		return msh.GetAlbumOutput{}, err
 	}
 
-	if err = CheckForAvailabilityInAlbums(ap.db, tx, artistID, albumID); err != nil {
+	if err = CheckForAvailabilityInArtistAlbums(ap.db, tx, artistID, albumID); err != nil {
 		return msh.GetAlbumOutput{}, err
 	}
 
@@ -64,11 +64,16 @@ func (ap *AlbumPostgres) GetByID(artistID, albumID int) (msh.GetAlbumOutput, err
 }
 
 func (ap *AlbumPostgres) DeleteAll(artistID int) error {
-	if err := DeleteAllAlbums(ap.db, artistID); err != nil {
+	tx, err := ap.db.Begin()
+	if err != nil {
 		return err
 	}
 
-	return nil
+	if err := DeleteAllAlbums(ap.db, tx, artistID); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
 func (ap *AlbumPostgres) Delete(artistID, albumID int) error {
@@ -77,7 +82,12 @@ func (ap *AlbumPostgres) Delete(artistID, albumID int) error {
 		return err
 	}
 
-	if err = CheckForAvailabilityInAlbums(ap.db, tx, artistID, albumID); err != nil {
+	if err = CheckForAvailabilityInArtistAlbums(ap.db, tx, artistID, albumID); err != nil {
+		return err
+	}
+
+	// First we need to delete all songs on this album
+	if err = DeleteAllSongs(ap.db, tx, albumID); err != nil {
 		return err
 	}
 
@@ -95,7 +105,7 @@ func (ap *AlbumPostgres) Update(artistID, albumID int, input msh.UpdateAlbumInpu
 		return err
 	}
 
-	if err = CheckForAvailabilityInAlbums(ap.db, tx, artistID, albumID); err != nil {
+	if err = CheckForAvailabilityInArtistAlbums(ap.db, tx, artistID, albumID); err != nil {
 		return err
 	}
 

@@ -28,3 +28,7 @@ func (ss *SongService) GetByID(albumID, songID int) (msh.GetSongOutput, error) {
 func (ss *SongService) Delete(albumID, songID int) error {
 	return ss.repo.Delete(albumID, songID)
 }
+
+func (ss *SongService) DeleteAll(albumID int) error {
+	return ss.repo.DeleteAll(albumID)
+}
