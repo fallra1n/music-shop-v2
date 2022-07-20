@@ -9,7 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// CheckForAvailabilityInSongs a helper function,
+// CheckForAvailabilityInAlbumSongs a helper function,
 // this function is used to check if a song is on an album_songs table
 func CheckForAvailabilityInAlbumSongs(db *sqlx.DB, tx *sql.Tx, albumID, songID int) error {
 	queryCheck := fmt.Sprintf("SELECT * FROM %s ast WHERE ast.album_id=$1 AND ast.song_id=$2", albumSongsTable)

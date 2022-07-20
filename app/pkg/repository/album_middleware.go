@@ -37,7 +37,7 @@ func DeleteAllAlbums(db *sqlx.DB, tx *sql.Tx, artistID int) error {
 	return nil
 }
 
-// CheckForAvailabilityInAlbums a helper function,
+// CheckForAvailabilityInArtistAlbums a helper function,
 // this function is used to check if an album is on an artist_albums table
 func CheckForAvailabilityInArtistAlbums(db *sqlx.DB, tx *sql.Tx, artistID, albumID int) error {
 	queryCheck := fmt.Sprintf("SELECT * FROM %s aa WHERE aa.artist_id=$1 AND aa.album_id=$2", artistAlbumsTable)
