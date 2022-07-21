@@ -4,6 +4,7 @@ import (
 	"fmt"
 	msh "github.com/asssswv/music-shop-v2/app"
 	"github.com/jmoiron/sqlx"
+	"strings"
 )
 
 type SongPostgres struct {
@@ -111,6 +112,88 @@ func (sp *SongPostgres) DeleteAll(albumID int) error {
 
 	if err = DeleteAllSongs(sp.db, tx, albumID); err != nil {
 		return err
+	}
+
+	return tx.Commit()
+}
+
+func (sp *SongPostgres) Update(albumID, songID int, input msh.UpdateSongInput) error {
+	tx, err := sp.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	if err = CheckForAvailabilityInAlbumSongs(sp.db, tx, albumID, songID); err != nil {
+		return err
+	}
+
+	setValues := make([]string, 0)
+	args := make([]any, 0)
+	argID := 1
+
+	if input.Title != nil {
+		setValues = append(setValues, fmt.Sprintf("title=$%d", argID))
+		args = append(args, *input.Title)
+		argID++
+	}
+
+	if input.Text != nil {
+		setValues = append(setValues, fmt.Sprintf("text=$%d", argID))
+		args = append(args, *input.Text)
+		argID++
+	}
+
+	if input.Album != nil {
+		setValues = append(setValues, fmt.Sprintf("album=$%d", argID))
+		args = append(args, *input.Album)
+		argID++
+	}
+
+	if argID > 1 {
+		setQuery := strings.Join(setValues, ", ")
+		query := fmt.Sprintf("UPDATE %s st SET %s WHERE st.id=%d", songsTable, setQuery, songID)
+
+		if _, err = sp.db.Exec(query, args...); err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+	}
+
+	flag := input.UpdateDate == nil
+	queryUpdateDate := fmt.Sprintf("UPDATE %s at SET date=$1 WHERE at.id=$2", albumsTable)
+
+	if !flag {
+		if _, err = sp.db.Exec(queryUpdateDate, input.UpdateDate, albumID); err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+	}
+
+	if input.NewAlbumID != nil {
+		if !flag {
+			if _, err = sp.db.Exec(queryUpdateDate, input.UpdateDate, input.NewAlbumID); err != nil {
+				_ = tx.Rollback()
+				return err
+			}
+		}
+
+		err = CheckForAvailabilityInAlbums(sp.db, tx, *input.NewAlbumID)
+		if err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+
+		queryAddNew := fmt.Sprintf("INSERT INTO %s (album_id, song_id) VALUES ($1, $2)", albumSongsTable)
+		if _, err = sp.db.Exec(queryAddNew, input.NewAlbumID, songID); err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+
+		queryDelOld := fmt.Sprintf("DELETE FROM %s ast WHERE ast.album_id=$1 AND ast.song_id=$2", albumSongsTable)
+		if _, err = sp.db.Exec(queryDelOld, albumID, songID); err != nil {
+			_ = tx.Rollback()
+			return err
+		}
 	}
 
 	return tx.Commit()

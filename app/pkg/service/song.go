@@ -32,3 +32,11 @@ func (ss *SongService) Delete(albumID, songID int) error {
 func (ss *SongService) DeleteAll(albumID int) error {
 	return ss.repo.DeleteAll(albumID)
 }
+
+func (ss *SongService) Update(albumID, songID int, input msh.UpdateSongInput) error {
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	return ss.repo.Update(albumID, songID, input)
+}

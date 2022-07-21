@@ -17,13 +17,14 @@ type GetSongOutput struct {
 
 type UpdateSongInput struct {
 	Title      *string `json:"title"`
-	Text       *string `json:"artist"`
-	Album      *string `json:"update_date"`
+	Text       *string `json:"text"`
+	Album      *string `json:"album"`
 	NewAlbumID *int    `json:"new_album_id"`
+	UpdateDate *string `json:"update_date"`
 }
 
 func (input *UpdateSongInput) Validate() error {
-	if input.Title == nil && input.Text == nil && input.Album == nil && input.NewAlbumID == nil {
+	if input.Title == nil && input.Text == nil && input.Album == nil && input.NewAlbumID == nil && input.UpdateDate == nil {
 		return errors.New("update structure has not arguments")
 	}
 

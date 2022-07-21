@@ -24,10 +24,6 @@ func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
 		logrus.Fatalf("error init tables: %s", err.Error())
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
 	err = db.Ping()
 	if err != nil {
 		return nil, err

@@ -35,6 +35,7 @@ type Song interface {
 	GetByID(albumID, songID int) (msh.GetSongOutput, error)
 	Delete(albumID, songID int) error
 	DeleteAll(albumID int) error
+	Update(albumID, songID int, input msh.UpdateSongInput) error
 }
 
 type Repository struct {
