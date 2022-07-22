@@ -3,7 +3,7 @@ version: latest
 services:
   music-shop:
     build: ./
-    command: ./music-shop
+    command: ./wait-for-postgres.sh db ./music-shop
     ports:
       - 8080:8080
     depends_on:
