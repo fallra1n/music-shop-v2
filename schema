@@ -1,0 +1,37 @@
+CREATE TABLE IF NOT EXISTS artists
+(
+    id serial primary key,
+	name varchar(255) not null,
+	age integer not null
+);
+
+CREATE TABLE IF NOT EXISTS albums
+(
+    id serial primary key,
+	title varchar(255) not null,
+	price decimal not null,
+	artist varchar(255) not null,
+	date varchar(255) not null
+);
+
+CREATE TABLE IF NOT EXISTS songs
+(
+    id serial primary key,
+	title varchar(255) not null,
+	text Text not null,
+	album varchar(255) not null
+);
+
+CREATE TABLE IF NOT EXISTS artist_albums
+(
+	id serial primary key,
+	artist_id integer references artists(id) on delete cascade not null,
+    album_id integer references albums(id) on delete cascade not null
+);
+
+CREATE TABLE IF NOT EXISTS album_songs
+(
+	id serial primary key,
+	album_id integer references albums(id) on delete cascade not null,
+	song_id integer references songs(id) on delete cascade not null
+);
